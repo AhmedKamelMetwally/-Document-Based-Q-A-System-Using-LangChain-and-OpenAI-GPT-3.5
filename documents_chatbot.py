@@ -24,36 +24,36 @@ import tempfile
 #importing my openai api key (I removed my api key for privacy)
 os.environ["OPENAI_API_KEY"] = ""
 class Document_loader(object):
-    #call the suitable loader function depending on file extension
+    #calling the suitable loader function depending on file extension
     supported_extensions={".pdf":PyPDFLoader,".txt":TextLoader,".docx":UnstructuredWordDocumentLoader,".doc":UnstructuredWordDocumentLoader}
 #exception if file extension is not pdf or .txt or .doc or .docx
 class loader_exception(Exception):
     pass
 #Document loader function (takes file path and return this file as list of documents)
 def load_doc(filepath:str)->list[Document]:
-    # get the extension of the file to call the suitable function
+    # getting the extension of the file to call the suitable function
     extension = pathlib.Path(filepath).suffix
-    #call the suitable function for the extension
+    #calling the suitable function for the extension
     loader=Document_loader.supported_extensions.get(extension)
-    #raise exception if file extension is not pdf or .txt or .doc or .docx
+    #raising exception if file extension is not pdf or .txt or .doc or .docx
     if not loader:
         raise loader_exception(
             "cannot load this type of file"
         )
-    #call loader function to load the file through the file path
+    #calling loader function to load the file through the file path
     load_doc=loader(filepath)
     docs=load_doc.load()
-    #return list of documents
+    #returning list of documents
     return docs
 # a function to split the documents ,converting to embeddings , stores them in an in-memory vector database , and returns a retriever that uses Max Marginal Relevance to find the most relevant results
 def retriever_config (docs:list[Document])->BaseRetriever:
-    #split documents into splits and each split will be composed of 1500 characters
+    #splitting documents into splits and each split will be composed of 1500 characters
     splitter=RecursiveCharacterTextSplitter(chunk_size=1500)
     splits=splitter.split_documents(docs)
     #converting splits into embeddings using all-MiniLM-L6-v2 model from HUGGINGFACE , and creating an in-memory vector database (vec_DB) from  documents embeddings
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     vec_DB=DocArrayInMemorySearch.from_documents(splits, embeddings)
-    #Convert the vector database into a LangChain retriever such that I can retrieve data from documents 
+    #Converting the vector database into a LangChain retriever such that I can retrieve data from documents 
     retriever = vec_DB.as_retriever()
     #filtering the documents retrieved by the  retriever based on their  similarity to the  query , using embedding vectors to compare the query  retrieved documents
     embeddings_filter = EmbeddingsFilter(embeddings=embeddings)
@@ -101,7 +101,7 @@ file_paths = [path.strip() for path in file_paths]
 # Initializing an empty list to store all loaded documents
 all_docs = []
 
-# Loop over each file path provided by the user
+# Looping over each file path provided by the user
 for path in file_paths:
     try:
         #  loading the document and adding it to the list
@@ -136,7 +136,7 @@ while True:
 
     response = qa_chain.run(question)
 
-    # Print the response returned by the QA system
+    # Printing the response returned by the QA system
     print(f"Answer: {response}")
 
 
